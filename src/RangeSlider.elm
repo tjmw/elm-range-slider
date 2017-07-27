@@ -30,6 +30,7 @@ module RangeSlider exposing (RangeSlider, Msg, AxisTick, init, view, update, sub
 @docs setValues Sets the position of the 'from' handle and the 'to' handle. May not act as intended if used after the initial setup.
 
 @docs getValues Gets the current from and to values (from, tp)
+
 -}
 
 import Html exposing (Html, span, div, Attribute)
@@ -44,6 +45,8 @@ import Html.CssHelpers
 
 { id, class, classList } =
     Html.CssHelpers.withNamespace "rangeSlider"
+
+
 {-| The base model for the slider
 -}
 type RangeSlider
@@ -70,9 +73,9 @@ type alias Settings =
 
 
 {-| Represents a tick that goes along the X axis.
- The value determines where it should go,
- isLabeled determines if the it should have a label below.
- The label is formatted by the formatter.
+The value determines where it should go,
+isLabeled determines if the it should have a label below.
+The label is formatted by the formatter.
 -}
 type alias AxisTick =
     { value : Float
@@ -136,7 +139,7 @@ setAxisTicks ticks (RangeSlider ({ settings } as model)) =
 
 
 {-| Sets the position of the 'from' handle and the 'to' handle.
-    Not intended to be used after the initial setup - it may not act as expected if the sliders are currently being moved.
+Not intended to be used after the initial setup - it may not act as expected if the sliders are currently being moved.
 -}
 setValues : Float -> Float -> RangeSlider -> RangeSlider
 setValues from to (RangeSlider model) =
@@ -316,7 +319,16 @@ view (RangeSlider model) =
 
 onMouseDown : (Drag -> RangeDrag) -> Attribute Msg
 onMouseDown createRangeDrag =
-    on "mousedown" <| Json.map (DragStart createRangeDrag) Mouse.position
+    let
+        options =
+            { preventDefault = True
+            , stopPropagation = True
+            }
+
+        decoder =
+            (Json.map (DragStart createRangeDrag) Mouse.position)
+    in
+        onWithOptions "mousedown" options decoder
 
 
 updateDrag : RangeDrag -> Position -> RangeDrag
